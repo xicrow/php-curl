@@ -1,0 +1,41 @@
+{
+	"name"        : "xicrow/php-curl",
+	"description" : "PHP wrapper and tools for cURL",
+	"type"        : "library",
+	"keywords"    : [
+		"curl",
+		"wrapper",
+		"tools",
+		"php"
+	],
+	"license"     : "MIT",
+	"authors"     : [
+		{
+			"name"    : "Jan Ebsen",
+			"email"   : "xicrow@gmail.com",
+			"homepage": "http://jan-ebsen.dk",
+			"role"    : "developer"
+		}
+	],
+	"support"     : {
+		"issues": "https://github.com/xicrow/php-curl/issues"
+	},
+	"require"     : {
+		"php"     : "^7.0",
+		"ext-curl": "*"
+	},
+	"require-dev" : {
+		"phpunit/phpunit" : "^5.2",
+		"xicrow/php-debug": "~2.0"
+	},
+	"autoload"    : {
+		"psr-4": {
+			"Xicrow\\PhpCurl\\": "src"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"Xicrow\\PhpCurl\\Test\\": "tests"
+		}
+	}
+}
