@@ -169,8 +169,8 @@ class Batch
 
             // If all requests have not been processed
             if ($processedRequests < $totalRequests) {
-                // Short pause between batches
-                usleep(50);
+                // Short pause between batches (50 milliseconds)
+                usleep(50 * 1000);
             }
         }
 
