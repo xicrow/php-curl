@@ -40,7 +40,7 @@ class Batch
             'max_concurrent_requests' => 10,
         ]);
 
-        // Set options
+        // Set given options
         $this->setOptions($options);
     }
 
@@ -90,36 +90,89 @@ class Batch
 
     /**
      * Execute requests
+     *
+     * @return array
      */
     public function execute()
     {
-        //        $this->options['max_concurrent_requests']
-
+        // Initialize multi handler
         $curlMultiHandle = curl_multi_init();
-        $handles         = [];
-        $errors          = [];
-        foreach ($this->requests as $requestIndex => $request) {
-            /* @var RequestInterface $request */
-            try {
-                curl_setopt_array($request->getCurlHandle(), ([CURLOPT_PRIVATE => $requestIndex] + $request->getCurlOptions() + $this->getCurlOptions()));
-                curl_multi_add_handle($curlMultiHandle, $request->getCurlHandle());
-                $handles[] = $request->getCurlHandle();
-            } catch (\Exception $exception) {
-                dd($exception);
+
+        // Array for handles
+        $handles = [];
+
+        // Array for errors
+        $errors = [];
+
+        // Count total requests
+        $totalRequests = count($this->requests);
+
+        // Counter for processed requests
+        $processedRequests = 0;
+
+        // Counter for batches
+        $batchCounter = 0;
+
+        // Loop until all requests have been processed
+        while ($processedRequests < $totalRequests) {
+            // Batch request counter
+            $batchRequests = 0;
+
+            // Loop requests
+            foreach ($this->requests as $requestIndex => $request) {
+                /* @var RequestInterface $request */
+
+                // If batch request counter equals or exceeds max concurrent requests
+                if ($batchRequests >= $this->options['max_concurrent_requests']) {
+                    // Break, end the batch
+                    break;
+                }
+
+                // If request index is below number of requests processed
+                if ($requestIndex < $processedRequests) {
+                    // Skip, request already processed
+                    continue;
+                }
+
+                try {
+                    // Set options, private options to identify request later
+                    curl_setopt_array($request->getCurlHandle(), ([CURLOPT_PRIVATE => $requestIndex] + $request->getCurlOptions() + $this->getCurlOptions()));
+
+                    // Add handle to multi handle
+                    curl_multi_add_handle($curlMultiHandle, $request->getCurlHandle());
+
+                    // Save handle
+                    $handles[] = $request->getCurlHandle();
+                } catch (\Exception $exception) {
+                    $errors['request-' . $requestIndex] = $exception;
+                }
+
+                // Increment batch request counter
+                $batchRequests++;
+
+                // Increment processed request counter
+                $processedRequests++;
+            }
+
+            // Execute requests in current batch
+            $running = null;
+            do {
+                curl_multi_exec($curlMultiHandle, $running);
+                $info = curl_multi_info_read($curlMultiHandle);
+                if ($info !== false && isset($info['handle']) && isset($info['result'])) {
+                    $errors['handle-' . (int)$info['handle']] = $info['result'];
+                }
+            } while ($running > 0);
+
+            // Increment batch counter
+            $batchCounter++;
+
+            // If all requests have not been processed
+            if ($processedRequests < $totalRequests) {
+                // Short pause between batches
+                usleep(50);
             }
         }
-
-        $running = null;
-        do {
-            curl_multi_exec($curlMultiHandle, $running);
-            $info = curl_multi_info_read($curlMultiHandle);
-            if ($info !== false && isset($info['handle']) && isset($info['result'])) {
-                $errors[(int)$info['handle']] = $info['result'];
-            }
-
-            //    debug('Sleeping...');
-            //    sleep(1);
-        } while ($running > 0);
 
         // Loop handlers
         for ($i = 0; $i < count($handles); $i++) {
@@ -136,6 +189,7 @@ class Batch
         // Close multi handler
         curl_multi_close($curlMultiHandle);
 
-        return true;
+        // Return errors
+        return $errors;
     }
 }
