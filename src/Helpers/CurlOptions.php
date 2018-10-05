@@ -65,7 +65,7 @@ class CurlOptions
      * @param array|mixed $key
      * @param mixed       $value
      *
-     * @return array|mixed|null
+     * @return $this
      */
     public function set($key, $value = null)
     {
