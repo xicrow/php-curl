@@ -159,8 +159,8 @@ class Batch
             do {
                 curl_multi_exec($curlMultiHandle, $running);
                 $info = curl_multi_info_read($curlMultiHandle);
-                if ($info !== false && isset($info['handle']) && isset($info['result'])) {
-                    $errors['handle-' . (int)$info['handle']] = $info['result'];
+                if (is_array($info) && array_key_exists('result', $info) && $info['result'] !== CURLE_OK) {
+                    $errors['handle-' . (int)$info['handle']] = $info;
                 }
             } while ($running > 0);
 
