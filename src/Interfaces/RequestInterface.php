@@ -1,6 +1,7 @@
 <?php
 namespace Xicrow\PhpCurl\Interfaces;
 
+use Xicrow\PhpCurl\Helpers\CurlOptions;
 use Xicrow\PhpCurl\Response;
 
 /**
@@ -15,14 +16,14 @@ interface RequestInterface
      *
      * @return resource
      */
-    public function getCurlHandle();
+    public function curlHandle();
 
     /**
-     * Get cURL options
+     * Get CurlOptions instance
      *
-     * @return array
+     * @return CurlOptions
      */
-    public function getCurlOptions();
+    public function curlOptions();
 
     /**
      * Execute cURL request

@@ -1,9 +1,8 @@
 <?php
 namespace Xicrow\PhpCurl;
 
+use Xicrow\PhpCurl\Helpers\CurlOptions;
 use Xicrow\PhpCurl\Interfaces\RequestInterface;
-use Xicrow\PhpCurl\Traits\CurlOptions;
-use Xicrow\PhpCurl\Traits\Options;
 
 /**
  * Class Batch
@@ -12,7 +11,22 @@ use Xicrow\PhpCurl\Traits\Options;
  */
 class Batch
 {
-    use CurlOptions, Options;
+    /**
+     * CurlOptions instance
+     *
+     * @var CurlOptions
+     */
+    private $curlOptions;
+
+    /**
+     * Batch options
+     *
+     * @var array
+     */
+    private $options = [
+        // Number of concurrent requests allowed
+        'max_concurrent_requests' => 10,
+    ];
 
     /**
      * List of requests
@@ -35,57 +49,29 @@ class Batch
      */
     public function __construct(array $options = [])
     {
-        // Set default options
-        $this->setOptions([
-            'max_concurrent_requests' => 10,
-        ]);
+        // Set cUrl options instance
+        $this->curlOptions = new CurlOptions();
 
-        // Set given options
-        $this->setOptions($options);
-    }
-
-    /**
-     * Add multiple requests
-     *
-     * @param array $requests
-     */
-    public function addRequests(array $requests)
-    {
-        foreach ($requests as $request) {
-            if ($request instanceof RequestInterface) {
-                $this->addRequest($request);
-            }
+        // Merge given options with defaults
+        if (!empty($options)) {
+            $this->options = ($options + $this->options);
         }
     }
 
     /**
-     * Add single request
+     * Get/set CurlOptions instance
      *
-     * @param RequestInterface $request
+     * @param CurlOptions|null $curlOptions
+     *
+     * @return CurlOptions
      */
-    public function addRequest(RequestInterface $request)
+    public function curlOptions(CurlOptions $curlOptions = null)
     {
-        $this->requests[] = $request;
-    }
+        if (!empty($curlOptions)) {
+            $this->curlOptions = $curlOptions;
+        }
 
-    /**
-     * Get requests
-     *
-     * @return Request[]
-     */
-    public function getRequests()
-    {
-        return $this->requests;
-    }
-
-    /**
-     * Get responses
-     *
-     * @return Response[]
-     */
-    public function getResponses()
-    {
-        return $this->responses;
+        return $this->curlOptions;
     }
 
     /**
@@ -136,13 +122,13 @@ class Batch
 
                 try {
                     // Set options, private options to identify request later
-                    curl_setopt_array($request->getCurlHandle(), ([CURLOPT_PRIVATE => $requestIndex] + $request->getCurlOptions() + $this->getCurlOptions()));
+                    curl_setopt_array($request->curlHandle(), ([CURLOPT_PRIVATE => $requestIndex] + $request->curlOptions()->get() + $this->curlOptions()->get()));
 
                     // Add handle to multi handle
-                    curl_multi_add_handle($curlMultiHandle, $request->getCurlHandle());
+                    curl_multi_add_handle($curlMultiHandle, $request->curlHandle());
 
                     // Save handle
-                    $handles[] = $request->getCurlHandle();
+                    $handles[] = $request->curlHandle();
                 } catch (\Exception $exception) {
                     $errors['request-' . $requestIndex] = $exception;
                 }
@@ -191,5 +177,57 @@ class Batch
 
         // Return errors
         return $errors;
+    }
+
+    /**
+     * Add multiple requests
+     *
+     * @param array $requests
+     *
+     * @return $this
+     */
+    public function addRequests(array $requests)
+    {
+        foreach ($requests as $request) {
+            if ($request instanceof RequestInterface) {
+                $this->addRequest($request);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Add single request
+     *
+     * @param RequestInterface $request
+     *
+     * @return $this
+     */
+    public function addRequest(RequestInterface $request)
+    {
+        $this->requests[] = $request;
+
+        return $this;
+    }
+
+    /**
+     * Get requests
+     *
+     * @return Request[]
+     */
+    public function getRequests()
+    {
+        return $this->requests;
+    }
+
+    /**
+     * Get responses
+     *
+     * @return Response[]
+     */
+    public function getResponses()
+    {
+        return $this->responses;
     }
 }
