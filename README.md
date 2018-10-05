@@ -9,11 +9,11 @@ PHP Wrapper and tools for cURL
 
 ## Installation
 The recommended way to install is through [Composer](https://getcomposer.org/).
-
 ```bash
 composer require xicrow/php-curl
 ```
 
+Or add directly to `composer.json`
 ```json
 {
     "require": {
