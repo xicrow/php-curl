@@ -55,7 +55,7 @@ class Request implements RequestInterface
     }
 
     /**
-     * Get/set CurlOptions instance
+     * Get/set cUrl handle resource
      *
      * @param resource|null $curlHandle
      *
