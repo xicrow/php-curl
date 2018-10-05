@@ -1,6 +1,8 @@
 <?php
 namespace Xicrow\PhpCurl\Interfaces;
 
+use Xicrow\PhpCurl\Helpers\Headers;
+
 /**
  * Interface ResponseInterface
  *
@@ -9,26 +11,23 @@ namespace Xicrow\PhpCurl\Interfaces;
 interface ResponseInterface
 {
     /**
-     * Get all HTTP headers as an array
-     *
-     * @return array
-     */
-    public function getHeaders();
-
-    /**
-     * Get specific HTTP header
-     *
-     * @param string     $key
-     * @param mixed|bool $default
+     * Get/set body
      *
      * @return string
      */
-    public function getHeader($key, $default = false);
+    public function body();
 
     /**
-     * Get body
+     * Get/set Headers instance
+     *
+     * @return Headers
+     */
+    public function headers();
+
+    /**
+     * Get single or multiple cUrl information
      *
      * @return string
      */
-    public function getBody();
+    public function info();
 }

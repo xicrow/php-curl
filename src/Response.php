@@ -1,6 +1,7 @@
 <?php
 namespace Xicrow\PhpCurl;
 
+use Xicrow\PhpCurl\Helpers\Headers;
 use Xicrow\PhpCurl\Interfaces\ResponseInterface;
 
 /**
@@ -10,6 +11,20 @@ use Xicrow\PhpCurl\Interfaces\ResponseInterface;
  */
 class Response implements ResponseInterface
 {
+    /**
+     * Body parsed from result
+     *
+     * @var string
+     */
+    private $body = '';
+
+    /**
+     * Headers instance
+     *
+     * @var Headers
+     */
+    private $headers;
+
     /**
      * Information from cUrl request
      *
@@ -25,20 +40,6 @@ class Response implements ResponseInterface
     private $result = null;
 
     /**
-     * Headers parsed from result
-     *
-     * @var array
-     */
-    private $headers = [];
-
-    /**
-     * Body parsed from result
-     *
-     * @var string
-     */
-    private $body = '';
-
-    /**
      * Response constructor.
      *
      * @param null|array $info
@@ -46,6 +47,9 @@ class Response implements ResponseInterface
      */
     public function __construct($info = null, $result = null)
     {
+        // Set Headers instance
+        $this->headers = new Headers();
+
         // Set information
         $this->info = $info;
 
@@ -57,130 +61,77 @@ class Response implements ResponseInterface
     }
 
     /**
-     * Parse result to headers and body
+     * Get/set body
+     *
+     * @param null|string $body
+     *
+     * @return null|string
      */
-    public function parse()
+    public function body($body = null)
     {
-        // Get headers
-        $headers = [];
-        $header  = substr($this->result, 0, $this->info['header_size']);
-        $header  = trim($header);
-        $header  = str_replace("\r\n", "\n", $header);
-        $header  = explode("\n", $header);
-        foreach ($header as $headerIndex => $headerItem) {
-            if ($headerIndex == 0) {
-                $parts                          = explode(' ', $headerItem);
-                $headers['Http-Version']        = array_shift($parts);
-                $headers['Http-Status-Code']    = array_shift($parts);
-                $headers['Http-Status-Message'] = implode(' ', $parts);
-            } elseif (strpos($headerItem, ':') !== false) {
-                list($key, $value) = explode(':', $headerItem);
-                $headers[trim($key)] = trim($value);
-            }
+        if (!empty($body)) {
+            $this->body = $body;
         }
 
-        // Get body
-        $body = $this->result;
-        if (!empty($headers)) {
-            $body = substr($body, $this->info['header_size']);
-        }
-        $body = trim($body);
-
-        // Set parsed headers
-        $this->headers = $headers;
-
-        // Set parsed body
-        $this->body = $body;
-    }
-
-    /**
-     * Get info
-     *
-     * @return array
-     */
-    public function getInfo()
-    {
-        return $this->info;
-    }
-
-    /**
-     * Get result
-     *
-     * @return array
-     */
-    public function getResult()
-    {
-        return $this->result;
-    }
-
-    /**
-     * Get headers
-     *
-     * @return array
-     */
-    public function getHeaders()
-    {
-        return $this->headers;
-    }
-
-    /**
-     * Get specific header
-     *
-     * @param string $key
-     * @param bool   $default
-     *
-     * @return mixed
-     */
-    public function getHeader($key, $default = false)
-    {
-        // Return header if found
-        if (array_key_exists($key, $this->headers)) {
-            return $this->headers[$key];
-        }
-
-        // Return default value
-        return $default;
-    }
-
-    /**
-     * Get body
-     *
-     * @return string
-     */
-    public function getBody()
-    {
         return $this->body;
     }
 
     /**
-     * Get HTTP status code
+     * Get single or multiple cUrl information
      *
-     * @return string|int
+     * @param array|mixed|null $filter
+     *
+     * @return array|mixed|null
      */
-    public function getHttpStatusCode()
+    public function info($filter = null)
     {
-        // Return status code from headers if available
-        if (isset($this->headers['Http-Status-Code'])) {
-            return $this->headers['Http-Status-Code'];
+        $return = $this->info;
+        if (is_array($filter)) {
+            $return = [];
+            foreach ($filter as $key) {
+                $return[$key] = $this->info($key);
+            }
+        } elseif (!is_null($filter)) {
+            $return = null;
+            if (array_key_exists($filter, $this->info)) {
+                $return = $this->info[$filter];
+            }
         }
 
-        // Return status code from information
-        return $this->info['http_code'];
+        return $return;
     }
 
     /**
-     * Get content type
+     * Get/set Headers instance
      *
-     * @return mixed
+     * @param Headers|null $headers
+     *
+     * @return Headers
      */
-    public function getContentType()
+    public function headers(Headers $headers = null)
     {
-        // Return content type from headers if available
-        if (isset($this->headers['Content-Type'])) {
-            return $this->headers['Content-Type'];
+        if (!empty($headers)) {
+            $this->headers = $headers;
         }
 
-        // Return content type from information
-        return $this->info['content_type'];
+        return $this->headers;
+    }
+
+    /**
+     * Parse result to headers and body
+     */
+    public function parse()
+    {
+        // Parse headers
+        $this->headers()->parse($this->result, $this->info);
+
+        // Parse body
+        $body = $this->result;
+        if (!empty($this->headers()->get())) {
+            $body = substr($body, $this->info['header_size']);
+        }
+        $body = trim($body);
+
+        $this->body = $body;
     }
 }
