@@ -17,14 +17,14 @@ class Batch
     /**
      * List of requests
      *
-     * @var array
+     * @var Request[]
      */
     private $requests = [];
 
     /**
      * List of responses
      *
-     * @var array
+     * @var Response[]
      */
     private $responses = [];
 
@@ -71,7 +71,7 @@ class Batch
     /**
      * Get requests
      *
-     * @return array
+     * @return Request[]
      */
     public function getRequests()
     {
@@ -81,7 +81,7 @@ class Batch
     /**
      * Get responses
      *
-     * @return array
+     * @return Response[]
      */
     public function getResponses()
     {
