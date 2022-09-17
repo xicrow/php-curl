@@ -17,7 +17,7 @@ Or add directly to `composer.json`
 ```json
 {
     "require": {
-        "xicrow/php-curl": "dev-master"
+        "xicrow/php-curl": "~1.0"
     }
 }
 ```
@@ -128,4 +128,4 @@ foreach ($batch->getRequests() as $requestIndex => $request) {
 - Maybe refractor `CurlOptions` and `Headers` and how to get/set them  
 
 ## License
-Copyright &copy; 2018 Jan Ebsen. Licensed under the MIT license.  
+Copyright &copy; 2022 Jan Ebsen. Licensed under the MIT license.  

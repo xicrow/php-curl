@@ -11,24 +11,24 @@ use Xicrow\PhpCurl\Response;
  */
 interface RequestInterface
 {
-    /**
-     * Get cURL handle
-     *
-     * @return resource
-     */
-    public function curlHandle();
+	/**
+	 * Get cURL handle
+	 *
+	 * @return resource
+	 */
+	public function curlHandle();
 
-    /**
-     * Get CurlOptions instance
-     *
-     * @return CurlOptions
-     */
-    public function curlOptions();
+	/**
+	 * Get CurlOptions instance
+	 *
+	 * @return CurlOptions
+	 */
+	public function curlOptions();
 
-    /**
-     * Execute cURL request
-     *
-     * @return Response
-     */
-    public function execute();
+	/**
+	 * Execute cURL request
+	 *
+	 * @return Response
+	 */
+	public function execute();
 }

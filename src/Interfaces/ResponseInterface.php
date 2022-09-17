@@ -10,24 +10,24 @@ use Xicrow\PhpCurl\Helpers\Headers;
  */
 interface ResponseInterface
 {
-    /**
-     * Get/set body
-     *
-     * @return string
-     */
-    public function body();
+	/**
+	 * Get/set body
+	 *
+	 * @return string
+	 */
+	public function body();
 
-    /**
-     * Get/set Headers instance
-     *
-     * @return Headers
-     */
-    public function headers();
+	/**
+	 * Get/set Headers instance
+	 *
+	 * @return Headers
+	 */
+	public function headers();
 
-    /**
-     * Get single or multiple cUrl information
-     *
-     * @return string
-     */
-    public function info();
+	/**
+	 * Get single or multiple cUrl information
+	 *
+	 * @return string
+	 */
+	public function info();
 }
