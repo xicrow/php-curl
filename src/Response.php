@@ -108,7 +108,7 @@ class Response implements ResponseInterface
 	 *
 	 * @return Headers
 	 */
-	public function headers(Headers $headers = null)
+	public function headers(Headers|null $headers = null)
 	{
 		if (!empty($headers)) {
 			$this->headers = $headers;

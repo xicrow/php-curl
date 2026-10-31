@@ -65,7 +65,7 @@ class Batch
 	 *
 	 * @return CurlOptions
 	 */
-	public function curlOptions(CurlOptions $curlOptions = null)
+	public function curlOptions(CurlOptions|null $curlOptions = null)
 	{
 		if (!empty($curlOptions)) {
 			$this->curlOptions = $curlOptions;

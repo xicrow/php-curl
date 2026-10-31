@@ -1,6 +1,7 @@
 <?php
 namespace Xicrow\PhpCurl;
 
+use CurlHandle;
 use Xicrow\PhpCurl\Helpers\CurlOptions;
 use Xicrow\PhpCurl\Interfaces\RequestInterface;
 
@@ -14,7 +15,7 @@ class Request implements RequestInterface
 	/**
 	 * cURL handle
 	 *
-	 * @var null|resource
+	 * @var null|CurlHandle
 	 */
 	private $curlHandle;
 
@@ -44,30 +45,19 @@ class Request implements RequestInterface
 	}
 
 	/**
-	 * Destructor
-	 */
-	public function __destruct()
-	{
-		// Close handle
-		if (is_resource($this->curlHandle())) {
-			curl_close($this->curlHandle());
-		}
-	}
-
-	/**
-	 * Get/set cUrl handle resource
+	 * Get/set cUrl handle
 	 *
-	 * @param resource|null $curlHandle
+	 * @param CurlHandle|null $curlHandle
 	 *
-	 * @return resource
+	 * @return CurlHandle
 	 */
-	public function curlHandle($curlHandle = null)
+	public function curlHandle(CurlHandle|null $curlHandle = null)
 	{
-		if (!empty($curlHandle) && is_resource($curlHandle)) {
+		if ($curlHandle instanceof CurlHandle) {
 			$this->curlHandle = $curlHandle;
 		}
 
-		if (!is_resource($this->curlHandle)) {
+		if (!$this->curlHandle instanceof CurlHandle) {
 			$this->curlHandle = curl_init();
 		}
 
@@ -81,7 +71,7 @@ class Request implements RequestInterface
 	 *
 	 * @return CurlOptions
 	 */
-	public function curlOptions(CurlOptions $curlOptions = null)
+	public function curlOptions(CurlOptions|null $curlOptions = null)
 	{
 		if (!empty($curlOptions)) {
 			$this->curlOptions = $curlOptions;
